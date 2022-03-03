@@ -11,5 +11,5 @@ specification:
 * numpy 1.22.2
 * matplotlib 3.5.1
 * networkx 2.7
-
+* scipy 1.8.0
 

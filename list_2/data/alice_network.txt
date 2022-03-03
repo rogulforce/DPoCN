@@ -1,0 +1,17 @@
+graph alice_network {
+Alice -- Bob [weight=1]
+Carl -- Alice [weight=1]
+Alice -- David [weight=1]
+Alice -- Ernst [weight=1]
+Alice -- Frank [weight=1]
+Bob -- Gail [weight=1]
+Gail -- Harry [weight=1]
+Harry -- Jen [weight=1]
+Jen -- Gail [weight=1]
+Harry -- Irene [weight=1]
+Irene -- Gail [weight=1]
+Irene -- Jen [weight=1]
+Ernst -- Frank [weight=1]
+David -- Carl [weight=1]
+Carl -- Frank [weight=1]
+}

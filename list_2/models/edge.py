@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-
 from list_2.models import Vertex
+
 
 
 @dataclass

@@ -105,14 +105,49 @@ class Graph:
                 file.write(line + "\n")
             file.write("}")
 
-    def get_shortest_paths(self, from_vert):
+    def get_shortest_paths(self, from_vert) -> dict:
         """ function returning the shortest path from given vert to all other verts. My own idea and implementation.
-
+        1. start with the from_vert node. path_len = 1. Define neghbours
+        2. for each neighbour set actual path_len, then:
+        path_len += 1
+        repeat for each of the list of 'not visited' neighbours of the neighbours until we cover all neighbours.
 
         Args:
-            from_vert:
-
+            from_vert: starting vert
         Returns:
-
+            (dict): Neighbour: shortest_path_length
         """
-        pass
+        shortest_path = {}
+        path_len = 1
+
+        not_visited_nodes = self.vertices
+        not_visited_nodes.remove(from_vert)  # remove initial node
+
+        # list of neighbours with their path len to the initial node
+        neighbours = self.get_neighbours(from_vert)
+        neighbours_wt_path = [(node, path_len) for node in neighbours]
+
+        # set neighbours as visited (queued to be visited)
+        not_visited_nodes = [node for node in not_visited_nodes if node not in neighbours]
+
+        while neighbours_wt_path:  # while the list is not empty
+            # take 'the oldest' neighbour with his path length
+            node, path_len = neighbours_wt_path.pop(0)
+
+            # set his path length
+            shortest_path[node.id] = path_len
+
+            # define new neighbours with path_len += 1
+            new_neighbours = [new_node for new_node in self.get_neighbours(node)
+                              if new_node in not_visited_nodes]
+            n_n_wt_path = [(new_node, path_len+1) for new_node in new_neighbours]
+
+            # set new neighbours as already visited (queued to be visited)
+            not_visited_nodes = [node for node in not_visited_nodes if node not in new_neighbours]
+
+            # add them to the queue
+            neighbours_wt_path.extend(n_n_wt_path)
+        return shortest_path
+
+
+

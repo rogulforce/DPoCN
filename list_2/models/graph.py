@@ -5,7 +5,7 @@ class Graph:
     """ Graph class.
     Attributes:
         vertices (set[Vertex]): set of graph nodes
-        vertices (set[Edge]): set of graph edges
+        edges (set[Edge]): set of graph edges
     """
     def __init__(self):
         self.vertices: list = []
@@ -106,16 +106,13 @@ class Graph:
             file.write("}")
 
     def get_shortest_paths(self, from_vert) -> dict:
-        """ function returning the shortest path from given vert to all other verts. My own idea and implementation.
-        1. start with the from_vert node. path_len = 1. Define neghbours
-        2. for each neighbour set actual path_len, then:
-        path_len += 1
-        repeat for each of the list of 'not visited' neighbours of the neighbours until we cover all neighbours.
-
+        """ function returning the shortest path from given vert to all other verts.
+        Known in literature as 'breadth-first search'
         Args:
             from_vert: starting vert
         Returns:
-            (dict): Neighbour: shortest_path_length
+            (dict): dictionary of these elements of the graph which you initial node can reach in convention
+                    {node.id: shortest_path_length}
         """
         shortest_path = {}
         path_len = 1
@@ -131,23 +128,20 @@ class Graph:
         not_visited_nodes = [node for node in not_visited_nodes if node not in neighbours]
 
         while neighbours_wt_path:  # while the list is not empty
-            # take 'the oldest' neighbour with his path length
+            # take first node from the queue
             node, path_len = neighbours_wt_path.pop(0)
 
-            # set his path length
+            # save the path length to result list
             shortest_path[node.id] = path_len
 
-            # define new neighbours with path_len += 1
+            # define neighbours of the node (set their path_len += 1)
             new_neighbours = [new_node for new_node in self.get_neighbours(node)
                               if new_node in not_visited_nodes]
-            n_n_wt_path = [(new_node, path_len+1) for new_node in new_neighbours]
+            n_n_wt_path = [(new_node, path_len+1) for new_node in new_neighbours]  # n_n -> new_neighbours
 
-            # set new neighbours as already visited (queued to be visited)
+            # set new neighbours as visited (in fact they are queued to be visited)
             not_visited_nodes = [node for node in not_visited_nodes if node not in new_neighbours]
 
-            # add them to the queue
+            # add new neighbours to the queue
             neighbours_wt_path.extend(n_n_wt_path)
         return shortest_path
-
-
-

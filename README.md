@@ -13,3 +13,5 @@ specification:
 * networkx 2.7
 * scipy 1.8.0
 
+NOTE:
+in assignment 1 the all_exercises.pdf preview is weird and not always working or working rly slow so i recommend watching all_exercises.ipynb or downloading pdf file.

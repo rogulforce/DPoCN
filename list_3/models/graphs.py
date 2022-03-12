@@ -37,64 +37,30 @@ def watts_strogatz(n: int, k: int, beta: float) -> nx.Graph:
         (nx.Graph): watts-strogatz model graph
     """
     if k % 2:
-        raise "k must be odd number!"
+        raise nx.NetworkXError("k % 2 != 0")
     elif k > n:
-        raise " k <= n"
+        raise nx.NetworkXError(" k > n")
 
-    """ generate initial edges"""
-    initial_adj_matrix = np.zeros(shape=(n, n))
-    for node, row in enumerate(initial_adj_matrix):
-        for to_node in range(node+1, node + k//2 + 1):
-            initial_adj_matrix[node, to_node % n] = np.random.rand()
-    initial_adj_matrix += initial_adj_matrix.transpose()
-
-    """ define not yet connected nodes """
-    upper_triangle = (np.triu(np.ones(shape=(n, n))) == 1)  # to work only on (j > i) indexes
-    not_connected = (initial_adj_matrix == 0) & upper_triangle
-    np.fill_diagonal(not_connected, 0)
-    not_connected_cords = list(zip(*np.nonzero(not_connected)))
-
-    adj_matrix = np.zeros(shape=(n,n))
-    #
-    # """ generate initial edges"""
-    # initial_adj_matrix = np.zeros(shape=(n, n))
-    # for node, row in enumerate(initial_adj_matrix):
-    #     for to_node in range(node+1, node + k//2 + 1 ):
-    #         initial_adj_matrix[node, to_node % n] = np.random.rand()
-    # initial_adj_matrix += initial_adj_matrix.transpose()
-    #
-    # """ unplug initial connections by probability"""
-    # adj_matrix = initial_adj_matrix > 1 - beta
-    # adj_matrix = adj_matrix
-    # print(adj_matrix)
-    # num_of_edges_to_replace = k - (adj_matrix == 1).sum(axis=1)
-    #
-    # """ define not yet connected nodes """
-    # not_connected = (initial_adj_matrix == 0) & upper_triangle
-    # np.fill_diagonal(not_connected, 0)
-    # not_connected_cords = list(zip(*np.nonzero(not_connected)))
-    # print(not_connected_cords)
-    #
-    # """ add new connections to the remaining after unplug"""
-    for node, row in enumerate(initial_adj_matrix):
-        """ randomize nodes to add """
-        not_connected_cords_subset = [it for it in not_connected_cords if it[0] == node]
-        random.shuffle(not_connected_cords_subset)
-        """ add connections """
-        for i, value in enumerate(row):
-            if 1 - value < beta:
-                if len(not_connected_cords_subset):
-                    initial_adj_matrix[node, i] = 0
-                    initial_adj_matrix[i, node] = 0
-                    adj_matrix[node, not_connected_cords_subset.pop()[1]] = 1
-
-    adj_matrix += initial_adj_matrix > 0
-    print(adj_matrix)
-    """ generate graph, add nodes and edges """
+    nodes = list(range(n))
     graph = nx.Graph()
     graph.add_nodes_from(range(n))
-    connection_cords = np.nonzero(adj_matrix > 0)
-    graph.add_edges_from(zip(*connection_cords))
+
+    """ generate initial edges """
+    for node in nodes:
+        for target in range(k//2):
+            graph.add_edge(node, (node + target + 1) % n)
+
+    """ reconnect nodes according to probability """
+    for node in nodes:
+        # initial connections
+        for target in graph[node].copy():
+            if target > node:
+                if np.random.rand() < beta:
+                    graph.remove_edge(node, target)
+                    new_connection = random.randrange(n)
+                    while new_connection == node or new_connection in graph[node]:
+                        new_connection = random.randrange(n)
+                    graph.add_edge(node, new_connection)
     return graph
 
 
@@ -103,7 +69,10 @@ def barabasi_albert():
 
 
 if __name__ == "__main__":
-    k = watts_strogatz(13, 6, 1)
-    p = nx.watts_strogatz_graph(10, 6, 1)
+    k = watts_strogatz(5, 2, 1)
+    p = nx.watts_strogatz_graph(5, 2, 1)
     print(p)
     print(k)
+    print(nx.adjacency_matrix(k))
+    print('xxxxxxxxxxxxxxxx')
+    print(nx.adjacency_matrix(p))

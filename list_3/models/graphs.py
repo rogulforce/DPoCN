@@ -22,6 +22,7 @@ def random_graph(n: int, p: float) -> nx.Graph:
     rnd_tria = random_triangular(n)
     connection_cords = np.nonzero(rnd_tria > 1-p)
     graph.add_edges_from(zip(*connection_cords))
+
     return graph
 
 
@@ -32,7 +33,7 @@ def watts_strogatz(n: int, k: int, beta: float) -> nx.Graph:
     Args:
         n (int): number of nodes
         k (int): k % 2 == 0; mean degree
-        beta (float): special parameter
+        beta (float): probability of rewiring for each initial connection
     Returns:
         (nx.Graph): watts-strogatz model graph
     """
@@ -58,21 +59,54 @@ def watts_strogatz(n: int, k: int, beta: float) -> nx.Graph:
                 if np.random.rand() < beta:
                     graph.remove_edge(node, target)
                     new_connection = random.randrange(n)
+                    # no self-loops, no multiple edges
                     while new_connection == node or new_connection in graph[node]:
                         new_connection = random.randrange(n)
                     graph.add_edge(node, new_connection)
+
     return graph
 
 
-def barabasi_albert():
-    pass
+def barabasi_albert(n: int, m: int):
+    """ function generating nx.Graph basing on barabasi-albert model
+        (https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model).
+    Args:
+        n (int): number of nodes
+        m (int): number of connections for each node
+    Returns:
+        (nx.Graph): barabasi-albert model graph
+    """
+    nodes = list(range(n))
+    graph = nx.Graph()
+    graph.add_nodes_from(range(n))
 
+    adjacency_matrix = np.zeros((n, n))
 
-if __name__ == "__main__":
-    k = watts_strogatz(5, 2, 1)
-    p = nx.watts_strogatz_graph(5, 2, 1)
-    print(p)
-    print(k)
-    print(nx.adjacency_matrix(k))
-    print('xxxxxxxxxxxxxxxx')
-    print(nx.adjacency_matrix(p))
+    """ initial connections """
+    # connecting <m> nodes to the first node.
+    adjacency_matrix[0, 1:m+1] = 1
+    adjacency_matrix[1:m+1, 0] = 1
+
+    """ add connections for new nodes"""
+    # number of existing connections at this point
+    sum_of_existing_edges = m
+    for node in range(m+1, n):
+        # define probability 
+        probability = np.sum(adjacency_matrix, axis=0) / (sum_of_existing_edges * 2)
+
+        # choose connections
+        new_connections = np.random.choice(nodes, size=m, p=probability, replace=False)
+
+        # add new connections
+        adjacency_matrix[new_connections, [node] * m] = 1
+        adjacency_matrix[[node] * m, new_connections] = 1
+
+        # update existing edges counter
+        sum_of_existing_edges += m
+
+    """ add connections """
+    # upper triangle to avoid adding same connection twice
+    connection_cords = np.nonzero(np.triu(adjacency_matrix))
+    graph.add_edges_from(zip(*connection_cords))
+
+    return graph

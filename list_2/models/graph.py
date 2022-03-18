@@ -1,4 +1,5 @@
 from list_2.models import Vertex, Edge
+import numpy as np
 
 
 class Graph:
@@ -80,6 +81,22 @@ class Graph:
                 neighbours.append(edge.from_vert)
         return neighbours
 
+    def get_weighted_neighbours(self, vert_key: Vertex) -> list[tuple]:
+        """ method returning all the neighbours of the given vertex
+        Args:
+            vert_key (Vertex): investigated vertex
+        Returns:
+            (list[tuple]): list of tuples of all neighbours of vert_key with weight of the connection
+        """
+
+        weighted_neighbours = []
+        for edge in self.edges:
+            if edge.from_vert == vert_key:
+                weighted_neighbours.append((edge.to_vert, edge.weight))
+            elif edge.to_vert == vert_key:
+                weighted_neighbours.append((edge.from_vert, edge.weight))
+            return weighted_neighbours
+
     def __contains__(self, vertex: Vertex) -> bool:
         """ method checking if the given Vertex is in the graph.
         Args:
@@ -144,4 +161,38 @@ class Graph:
 
             # add new neighbours to the queue
             neighbours_wt_path.extend(n_n_wt_path)
+        return shortest_path
+
+    def get_weighted_shortest_paths(self, from_vert) -> dict:
+        """ function returning the shortest path from given vert to all other verts.
+        Known in literature as 'breadth-first search'
+        Args:
+            from_vert: starting vert
+        Returns:
+            (dict): dictionary of these elements of the graph which you initial node can reach in convention
+                    {node.id: shortest_path_length}
+        """
+        # TODO: zmienić na ważony - przechodzisz dalej jedynie jeśli masz krótsz drogę
+        shortest_path = {node.id: np.inf for node in self.vertices}
+        shortest_path[from_vert.id] = 0
+
+        # list of neighbours with their path weight to the initial node
+        neighbours_weighted = self.get_weighted_neighbours(from_vert)
+
+        while neighbours_weighted:  # while the list is not empty
+            # take first node from the queue
+            node, path_weight = neighbours_weighted.pop(0)
+
+            # save the path weight to result list
+            shortest_path[node.id] = path_weight
+
+            # add new neighbours with previous path weight
+            new_neighbours = [(neighbour[0], neighbour[1] + path_weight) for
+                              neighbour in self.get_weighted_neighbours(node)]
+
+            # add only these neighbours with shorter path than already existing
+            neighbours_to_queue = [it for it in new_neighbours if it[1] < shortest_path[it[0]]]
+
+            # add new neighbours to the queue
+            neighbours_weighted.extend(neighbours_to_queue)
         return shortest_path

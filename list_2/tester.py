@@ -60,4 +60,4 @@ if __name__ == "__main__":
         graph.add_edge(from_vert=row[0], to_vert=row[1])
 
     vert = [it for it in graph.get_vertices() if it.id == 'Alice'][0]
-    print(graph.get_shortest_paths(vert))
+    print(graph.get_weighted_shortest_paths(vert))

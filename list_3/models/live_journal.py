@@ -12,16 +12,19 @@ class LiveJournal:
     visited_friends = set()
     network = pd.DataFrame([], columns=['from_node', 'to_node'])
 
-    def get_friends(self, user: str, limit: Optional[int] = None) -> list:
+    def get_friends(self, user: str, limit: Optional[int] = None) -> set:
         """ Method getting list of <user> friends from LiveJournal service.
+
+        Result is type(set) because there are some duplicates in the list of friends fetched from the page.
+
         Args:
             user (str): user name
             limit (Optional[int]): optional limit of obtained friends
         Returns:
-            (list) not ordered list of friends.
+            (set) not ordered list of friends.
         """
         url = requests.get(f'{self.USER_FRIEND_LIST}{user}').text.splitlines()[:limit]
-        friends = [it[2:] for it in url[1:-1]]
+        friends = set([it[2:] for it in url[1:-1]])
         return friends
 
     def explore_network(self, starting_user: str = 'valerois', depth: int = 2,
@@ -50,9 +53,7 @@ class LiveJournal:
         rows = pd.DataFrame.from_dict({'from_node': [starting_user] * len(friends), 'to_node': [f[0] for f in friends]})
         self.network = pd.concat([self.network, rows], ignore_index=True)
 
-        k = 0
         while friends_queue:
-
             # take first node from the queue
             friend, current_depth = friends_queue.pop(0)
 
@@ -83,9 +84,7 @@ class LiveJournal:
         Args:
             name: name of the file
         """
-        self.network.to_csv(name)
-
-
+        self.network.to_csv(name, index=False)
 
 
 if __name__ == "__main__":

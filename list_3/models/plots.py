@@ -55,23 +55,30 @@ def dist_cdf_plot(domain: tuple = (-4, 4), distribution=scipy.stats.norm, show: 
         plt.show()
 
 
-def dist_pdf_plot(domain: tuple = (-4, 4), distribution=scipy.stats.norm, show: bool = False, **kwargs) -> None:
+def dist_pdf_plot(domain: tuple = (-4, 4), distribution=scipy.stats.norm, discrete: bool = False, show: bool = False, **kwargs) -> None:
     """ function plotting a PDF of the given distribution.
     Args:
         domain (tuple): domain of the distribution.
         distribution: scipy.stats theoretical distribution. Defaults to scipy.stats.norm.
+        discrete (bool): indicator of discrete distribution. Defaults to False.
         show (bool): show indicator. Defaults to None.
         **kwargs: Optional arguments for the distribution.
     Returns:
         None
     """
-    x = np.linspace(domain[0], domain[1], 1000)
-    plt.plot(x, distribution.pdf(x, **kwargs), 'r.')
+    if discrete:
+
+        x = np.linspace(domain[0], domain[1], 1+domain[1]-domain[0])
+        plt.plot(x, distribution.pmf(x, **kwargs), 'r.', label='PMF')
+    else:
+        x = np.linspace(domain[0], domain[1], 1000)
+        plt.plot(x, distribution.pdf(x, **kwargs), 'r.', label='PDF')
+
     if show:
         plt.show()
 
 
-def show_degree_distribution(network, distribution=None):
+def show_degree_distribution(network):
 
     stats = show_statistics(network)
     print(f'statistics: {stats}')
@@ -81,20 +88,6 @@ def show_degree_distribution(network, distribution=None):
     plt.figure(0)
     plt.xlabel('x')
     plt.ylabel('pdf')
-    pdf_emp(degree_list, bins=domain_end - domain_start)
+    pdf_emp(degree_list, bins=domain_end - domain_start, label='EPMF')
 
-    # fit distribution
-    if distribution:
-        dist_pdf_plot(domain=(domain_start, domain_end), distribution=scipy.stats.norm, loc=stats['mean_degree'],
-                      scale=np.sqrt(stats['var_degree']), show=True)
-    else:
-        plt.show()
-
-    plt.figure(1)
-    plt.xlim(domain_start, domain_end)
-    plt.xlabel('x')
-    plt.ylabel('cdf')
-    if distribution:
-        dist_cdf_plot(domain=(domain_start, domain_end), distribution=scipy.stats.norm, loc=stats['mean_degree'],
-                      scale=np.sqrt(stats['var_degree']))
-    cdf_emp(degree_list, show=True)
+    return stats

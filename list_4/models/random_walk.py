@@ -2,6 +2,9 @@ import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
 import random
+import glob
+import imageio
+from natsort import natsorted
 
 
 class Direction(Enum):
@@ -42,19 +45,68 @@ class RandomWalk:
             self.update_list_of_positions()
         return self.list_of_positions
 
-    def save_walk(self):
-        pass
+    def save_walk_to_pngs(self, destination: str = 'data/', color: str = 'b', new_step_color: str = 'r',
+                          show: bool = False):
+        """ function saving each move (with old moves before it) to png
+        Args:
+            destination (str): folder destination. Defaults to 'data/'.
+            color (str): color of the walk. Defaults to 'b'
+            new_step_color (str): color of newly added step to the walk. Defaults to 'r'
+            show (bool): plt.show() indicator. Defaults to False
+        """
+        x_axis = [pos[0] for pos in self.list_of_positions]
+        y_axis = [pos[1] for pos in self.list_of_positions]
 
-    def save_walk_to_pngs(self):
-        pass
+        plt.figure()
+        plt.grid()
+        plt.xlim([min(x_axis) - 1, max(x_axis) + 1])
+        plt.ylim([min(y_axis) - 1, max(y_axis) + 1])
 
-    def save_walk_to_gif(self):
-        self.save_walk_to_pngs()
-        # TODO: add rest
-        pass
+        # initial value for first step
+        initial_position = self.list_of_positions[0]
+        plt.title(f'Random Graph. Starting position: {initial_position}, step 0.')
+
+        # write with new color
+        plt.plot(initial_position[0], initial_position[1], f'{new_step_color}o')
+        plt.savefig(f'../{destination}/step_0.png')
+
+        # change color to standard
+        plt.plot(initial_position[0], initial_position[1], f'{color}o')
+
+        prev_position = initial_position
+        for i, position in enumerate(self.list_of_positions[1:]):
+            plt.title(f'Random Graph. Starting position: {initial_position}, step {i+1}')
+
+            # write with new color
+            plt.plot([prev_position[0], position[0]], [prev_position[1], position[1]], f'{new_step_color}-')
+            plt.plot(position[0], position[1], f'{new_step_color}o')
+            plt.savefig(f'../{destination}/step_{i+1}.png')
+
+            # change color to standard
+            plt.plot([prev_position[0], position[0]], [prev_position[1], position[1]], f'{color}-')
+            plt.plot(position[0], position[1], f'{color}o')
+
+            prev_position = position
+
+        if show:
+            plt.show()
+
+    def save_walk_to_gif(self, filename: str = 'random_graph.gif', destination: str = 'data/', color: str = 'b',
+                         new_step_color: str = 'r'):
+
+        self.save_walk_to_pngs(destination=destination, color=color, new_step_color=new_step_color, show=False)
+
+        files = natsorted(glob.glob(f'../{destination}/step_*.png'))
+        images = []
+
+        for file in files:
+            images.append(imageio.imread(file))
+            imageio.mimsave(f'../{destination}/{filename}', images, duration=1)
 
 
 if __name__ == "__main__":
     a = RandomWalk()
     c = a.generate(starting_position=(3, 3), num_of_steps=10)
     print(c)
+    # a.save_walk_to_pngs()
+    a.save_walk_to_gif()

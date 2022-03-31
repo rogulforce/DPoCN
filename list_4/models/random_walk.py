@@ -1,7 +1,6 @@
 import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
-import random
 import glob
 import imageio
 from natsort import natsorted
@@ -43,6 +42,7 @@ class RandomWalk:
             side = np.random.choice(list(Direction))
             self.move(side)
             self.update_list_of_positions()
+
         return self.list_of_positions
 
     def save_walk_to_pngs(self, destination: str = 'data/', color: str = 'b', new_step_color: str = 'r',
@@ -68,7 +68,7 @@ class RandomWalk:
 
         # write with new color
         plt.plot(initial_position[0], initial_position[1], f'{new_step_color}o')
-        plt.savefig(f'../{destination}/step_0.png')
+        plt.savefig(f'{destination}/step_0.png')
 
         # change color to standard
         plt.plot(initial_position[0], initial_position[1], f'{color}o')
@@ -80,7 +80,7 @@ class RandomWalk:
             # write with new color
             plt.plot([prev_position[0], position[0]], [prev_position[1], position[1]], f'{new_step_color}-')
             plt.plot(position[0], position[1], f'{new_step_color}o')
-            plt.savefig(f'../{destination}/step_{i+1}.png')
+            plt.savefig(f'{destination}/step_{i+1}.png')
 
             # change color to standard
             plt.plot([prev_position[0], position[0]], [prev_position[1], position[1]], f'{color}-')
@@ -91,17 +91,31 @@ class RandomWalk:
         if show:
             plt.show()
 
-    def save_walk_to_gif(self, filename: str = 'random_graph.gif', destination: str = 'data/', color: str = 'b',
-                         new_step_color: str = 'r'):
+        return
 
+    def save_walk_to_gif(self, filename: str = 'random_graph.gif', destination: str = 'data/', step_time: int = 1,
+                         color: str = 'b', new_step_color: str = 'r'):
+        """
+
+        Args:
+            filename:
+            destination:
+            step_time:
+            color:
+            new_step_color:
+
+        Returns:
+
+        """
         self.save_walk_to_pngs(destination=destination, color=color, new_step_color=new_step_color, show=False)
 
-        files = natsorted(glob.glob(f'../{destination}/step_*.png'))
+        files = natsorted(glob.glob(f'{destination}/step_*.png'))
         images = []
 
         for file in files:
             images.append(imageio.imread(file))
-            imageio.mimsave(f'../{destination}/{filename}', images, duration=1)
+            imageio.mimsave(f'{destination}/{filename}', images, duration=step_time)
+        return
 
 
 if __name__ == "__main__":

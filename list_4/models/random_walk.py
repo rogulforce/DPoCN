@@ -9,7 +9,7 @@ from natsort import natsorted
 
 
 class Direction(Enum):
-    """ dictionary of directions for reading purposes """
+    """ enum of directions for reading purposes. """
     UP = (0, 1)
     DOWN = (0, -1)
     RIGHT = (1, 0)
@@ -23,22 +23,23 @@ class RandomWalk:
         self.position = None
         self.list_of_positions = []
 
-    def move(self, direction: tuple):
-        np.add(self.position, np.array(direction), out=self.position)
-
     def clear(self):
         self.position = None
         self.list_of_positions = []
+
+    def move(self, direction: tuple):
+        np.add(self.position, np.array(direction), out=self.position)
 
     def update_list_of_positions(self):
         self.list_of_positions.append(tuple(self.position))
 
     @staticmethod
     def choose_direction():
+        """ function choosing direction for random walk"""
         return np.random.choice(list(Direction)).value
 
     def generate(self, starting_position: tuple = (0, 0), num_of_steps: int = 1000) -> list[tuple]:
-        """ method generating random walk.
+        """ method generating a walk.
         Args:
             starting_position (tuple): starting position. Defaults to (0,0)
             num_of_steps (int): number of steps of the walk
@@ -104,18 +105,16 @@ class RandomWalk:
         return
 
     def save_walk_to_gif(self, filename: str | bool = None, destination: str = 'data/', step_time: int = 1,
-                         color: str = 'b', new_step_color: str = 'r'):
-        """
-
+                         color: str = 'b', new_step_color: str = 'r') -> None:
+        """ function saving walk to gif.
         Args:
-            filename:
-            destination:
-            step_time:
-            color:
-            new_step_color:
-
+            filename: name of the file.
+            destination: name of the folder.
+            step_time: waiting time for GIF to change picture.
+            color: color of the plot.
+            new_step_color: color of new step in trajectory.
         Returns:
-
+            None
         """
         if not filename:
             filename = f'{self.__class__.__name__}.gif'
@@ -141,6 +140,7 @@ class PearsonRandomWalk(RandomWalk):
         self.angles = np.linspace(0, 2 * np.pi, angle_precision)
 
     def choose_direction(self) -> tuple:
+        """ function choosing direction for Pearson's random walk"""
         chosen_angle = np.random.choice(self.angles)
         x = np.cos(chosen_angle)
         y = np.sin(chosen_angle)
@@ -148,6 +148,16 @@ class PearsonRandomWalk(RandomWalk):
 
     def get_stats(self, num_of_trajectories: int = 100, starting_position: tuple = (0, 0), num_of_steps: int = 1000)\
                   -> tuple[list[float], list[float]]:
+        """ function generating statistics for <num_of_trajectories> of monte carlo trajectories
+        (length=<num_of_steps>). Returns list of fractions of being in first quarter or right half of the plane.
+        Args:
+            num_of_trajectories (int): number of trajectories.
+            starting_position (tuple): starting position.
+            num_of_steps (int): num of steps.
+        Returns:
+            (tuple[list[float], list[float]]): list of fractions of being in right half, list of fraction of being in
+                                               first quarter
+        """
         right_half_fraction = []
         upper_right_fraction = []
 
@@ -175,18 +185,3 @@ class PearsonRandomWalk(RandomWalk):
     def get_upper_right_fraction(list_of_positions):
         n = len(list_of_positions) - 1
         return len([it for it in list_of_positions[1:] if (it[0] > 0) and (it[1] > 0)]) / n
-
-
-if __name__ == "__main__":
-    # a = RandomWalk()
-    # c = a.generate(starting_position=(3, 3), num_of_steps=10)
-    # print(c)
-    # # a.save_walk_to_pngs()
-    # a.save_walk_to_gif(destination='../data')
-
-    pear = PearsonRandomWalk()
-    # pear_c = pear.generate(starting_position=(3, 3), num_of_steps=10)
-    # print(pear_)
-
-    # pear.save_walk_to_gif(destination='../data')
-

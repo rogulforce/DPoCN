@@ -1,7 +1,7 @@
-from .random_walk import RandomWalk
+from .random_walk import RandomWalk, PearsonRandomWalk
 
 __all__ = [
-    RandomWalk
+    RandomWalk, PearsonRandomWalk
 ]
 
 

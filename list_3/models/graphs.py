@@ -13,6 +13,15 @@ def random_graph(n: int, p: float) -> nx.Graph:
     Returns:
         (nx.Graph): random graph
     """
+
+    # exceptions
+    if p < 0 or p > 1:
+        raise "p should be from 0 to 1"
+    elif not isinstance(n, int):
+        raise "n should be discrete"
+    elif n <= 0:
+        raise "n should be bigger than 0"
+
     graph = nx.Graph()
 
     """ add nodes """
@@ -41,6 +50,16 @@ def watts_strogatz(n: int, k: int, beta: float) -> nx.Graph:
         raise nx.NetworkXError("k % 2 != 0")
     elif k > n:
         raise nx.NetworkXError(" k > n")
+    elif not isinstance(k,int):
+        raise "k should be discrete"
+    elif not isinstance(n, int):
+        raise "n should be discrete"
+    elif beta < 0 or beta > 1:
+        raise "beta should be from 0 to 1"
+    elif n <= 0:
+        raise "n should be bigger than 0"
+    elif k <= 0:
+        raise "k should be bigger than 0"
 
     nodes = list(range(n))
     graph = nx.Graph()
@@ -71,11 +90,20 @@ def barabasi_albert(n: int, m: int):
     """ function generating nx.Graph basing on barabasi-albert model
         (https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model).
     Args:
-        n (int): number of nodes
-        m (int): number of connections for each node
+        n (int): number of nodes.
+        m (int): number of connections for each node.
     Returns:
-        (nx.Graph): barabasi-albert model graph
+        (nx.Graph): barabasi-albert model graph.
     """
+    if n > m:
+        raise nx.NetworkXError("n > m")
+    elif not isinstance(m, int):
+        raise "m should be discrete"
+    elif not isinstance(n, int):
+        raise "n should be discrete"
+    elif n <= 0:
+        raise "n should be bigger than 0"
+
     nodes = list(range(n))
     graph = nx.Graph()
     graph.add_nodes_from(range(n))

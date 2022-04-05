@@ -1,6 +1,7 @@
 import glob
+from copy import copy
+
 import imageio
-import networkx
 import numpy as np
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -66,7 +67,7 @@ class RandomWalkOnGraph:
             new_step_color (str): color of newly added step to the walk. Defaults to 'r'
             show (bool): plt.show() indicator. Defaults to False
         """
-        layout = networkx.circular_layout(self._network)
+        layout = nx.circular_layout(self._network)
 
         plt.figure()
         # initial value for first step
@@ -127,8 +128,32 @@ class RandomWalkOnGraph:
             imageio.mimsave(f'{destination}/{filename}', images, duration=step_time)
         return
 
-    def get_stats(self):
-        pass
+    def get_stats(self, starting_node: int = 0, max_iter: int = 1000):
+        """
+        Args:
+            starting_node:
+            max_iter:
+        Returns:
+        """
+
+        nodes = list(self._network.nodes)
+        # neighbors = [it for it in self._network.neighbors(starting_node)]
+
+        unvisited_nodes = copy(nodes)
+        unvisited_nodes.remove(starting_node)
+        time_to_hit = {it: np.inf for it in unvisited_nodes}
+
+        i = 1
+        self.move(starting_node)
+        while i <= max_iter and unvisited_nodes:
+            current_node = self.choose_direction()
+            self.move(current_node)
+
+            if current_node in unvisited_nodes:
+                unvisited_nodes.remove(current_node)
+                time_to_hit[current_node] = i
+            i += 1
+        return time_to_hit
 
 
 if __name__ == "__main__":
@@ -136,6 +161,8 @@ if __name__ == "__main__":
     rwog = RandomWalkOnGraph()
     rwog.network = x
 
-    print(rwog.generate(num_of_steps=5))
+    # print(rwog.generate(num_of_steps=5))
     # rwog.save_walk_to_pngs()
-    rwog.save_walk_to_gif(destination='../data')
+    # rwog.save_walk_to_gif(destination='../data')
+    # nx
+    print(rwog.get_stats())

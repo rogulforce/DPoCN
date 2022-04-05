@@ -58,7 +58,7 @@ class RandomWalkOnGraph:
         return self.list_of_positions
 
     def save_walk_to_pngs(self, destination: str = 'data/', color: str = 'b', new_step_color: str = 'r',
-                          show: bool = False):
+                          prev_color='g',show: bool = False):
         """ function saving each move (with old moves before it) to png
         Args:
             destination (str): folder destination. Defaults to 'data/'.
@@ -78,18 +78,23 @@ class RandomWalkOnGraph:
         nx.draw_networkx_nodes([initial_position], pos=layout, node_color=new_step_color)
         plt.savefig(f'{destination}/{self.__class__.__name__}_step_0.png')
 
+        # change color to standard
+        nx.draw_networkx_nodes([initial_position], pos=layout, node_color=prev_color)
+
         prev_position = initial_position
         for i, position in enumerate(self.list_of_positions[1:]):
             plt.title(f'Random Graph. Starting position: {initial_position}, step {i + 1}')
 
             # write with new color
-            nx.draw_networkx_nodes([prev_position, position], pos=layout, node_color=new_step_color)
-            nx.draw_networkx_edges(self._network, edgelist=[(prev_position, position)], pos=layout, edge_color=new_step_color)
+            nx.draw_networkx_nodes([position], pos=layout, node_color=new_step_color)
+            nx.draw_networkx_edges(self._network, edgelist=[(prev_position, position)], pos=layout,
+                                   edge_color=new_step_color)
             plt.savefig(f'{destination}/{self.__class__.__name__}_step_{i + 1}.png')
 
             # change color to standard
-            nx.draw_networkx_nodes([prev_position, position], pos=layout, node_color=color)
-            nx.draw_networkx_edges(self._network, edgelist=[(prev_position, position)], pos=layout, edge_color=color)
+            nx.draw_networkx_nodes([position], pos=layout, node_color=prev_color)
+            nx.draw_networkx_edges(self._network, edgelist=[(prev_position, position)], pos=layout,
+                                   edge_color=prev_color)
 
             prev_position = position
 
@@ -97,7 +102,7 @@ class RandomWalkOnGraph:
             plt.show()
 
     def save_walk_to_gif(self, filename: str | bool = None, destination: str = 'data/', step_time: int = 1,
-                         color: str = 'b', new_step_color: str = 'r') -> None:
+                         color: str = 'b', new_step_color: str = 'r', prev_color='g') -> None:
         """ function saving the walk to a gif.
         Args:
             filename: name of the file.
@@ -111,7 +116,8 @@ class RandomWalkOnGraph:
         if not filename:
             filename = f'{self.__class__.__name__}.gif'
 
-        self.save_walk_to_pngs(destination=destination, color=color, new_step_color=new_step_color, show=False)
+        self.save_walk_to_pngs(destination=destination, color=color, new_step_color=new_step_color,
+                               prev_color=prev_color, show=False)
 
         files = natsorted(glob.glob(f'{destination}/{self.__class__.__name__}_step_*.png'))
         images = []

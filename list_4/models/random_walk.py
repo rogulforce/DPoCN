@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
@@ -106,7 +104,7 @@ class RandomWalk:
 
     def save_walk_to_gif(self, filename: str | bool = None, destination: str = 'data/', step_time: int = 1,
                          color: str = 'b', new_step_color: str = 'r') -> None:
-        """ function saving walk to gif.
+        """ function saving walk to a gif.
         Args:
             filename: name of the file.
             destination: name of the folder.
@@ -131,17 +129,14 @@ class RandomWalk:
 
 
 class PearsonRandomWalk(RandomWalk):
-    """ 2 dimensional Pearson random walk class with equal probability distribution for each direction.
-    Args:
-        angle_precision (int): precision of angle change. Defaults to 1000
-    """
-    def __init__(self, angle_precision: int = 1000):
+    """ 2 dimensional Pearson random walk class with equal probability distribution for each direction. """
+    def __init__(self):
         super().__init__()
-        self.angles = np.linspace(0, 2 * np.pi, angle_precision)
 
-    def choose_direction(self) -> tuple:
+    @staticmethod
+    def choose_direction() -> tuple:
         """ function choosing direction for Pearson's random walk"""
-        chosen_angle = np.random.choice(self.angles)
+        chosen_angle = np.random.random() * 2 * np.pi
         x = np.cos(chosen_angle)
         y = np.sin(chosen_angle)
         return x, y

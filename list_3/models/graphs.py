@@ -95,7 +95,7 @@ def barabasi_albert(n: int, m: int):
     Returns:
         (nx.Graph): barabasi-albert model graph.
     """
-    if n > m:
+    if n < m:
         raise nx.NetworkXError("n > m")
     elif not isinstance(m, int):
         raise "m should be discrete"

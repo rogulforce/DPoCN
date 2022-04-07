@@ -11,7 +11,7 @@ from list_3.models import random_graph
 
 
 class RandomWalkOnGraph:
-
+ 
     def __init__(self, network: nx.Graph | bool = None):
         self._network = network
         self.position = None
@@ -32,7 +32,11 @@ class RandomWalkOnGraph:
     def choose_direction(self):
         """ function choosing direction for random walk on graph"""
         neighbors = [it for it in self._network.neighbors(self.position)]
-        return np.random.choice(neighbors)
+        if neighbors:
+            return np.random.choice(neighbors)
+        else:
+            # if there are no neighbours we just don't move.
+            return self.position
 
     def move(self, direction):
         self.position = direction
@@ -58,39 +62,43 @@ class RandomWalkOnGraph:
 
         return self.list_of_positions
 
-    def save_walk_to_pngs(self, destination: str = 'data/', color: str = 'b', new_step_color: str = 'r',
+    def save_walk_to_pngs(self, filename: str | bool = None, destination: str = 'data/', color: str = 'b', new_step_color: str = 'r',
                           prev_color='g',show: bool = False):
         """ function saving each move (with old moves before it) to png
         Args:
+            filename (str | bool): custom filename.
             destination (str): folder destination. Defaults to 'data/'.
             color (str): color of the walk. Defaults to 'b'
             new_step_color (str): color of newly added step to the walk. Defaults to 'r'
             show (bool): plt.show() indicator. Defaults to False
         """
+        if not filename:
+            filename = f'{self.__class__.__name__}'
+
         layout = nx.circular_layout(self._network)
 
         plt.figure()
         # initial value for first step
         initial_position = self.list_of_positions[0]
-        plt.title(f'Random Graph. Starting position: {initial_position}, step 0.')
+        plt.title(f'Random walk on graph. Starting position: {initial_position}, step 0.')
 
         # write with new color
         nx.draw_networkx(self._network, pos=layout, node_color=color, edge_color=color)
         nx.draw_networkx_nodes([initial_position], pos=layout, node_color=new_step_color)
-        plt.savefig(f'{destination}/{self.__class__.__name__}_step_0.png')
+        plt.savefig(f'{destination}/{filename}_step_0.png')
 
         # change color to standard
         nx.draw_networkx_nodes([initial_position], pos=layout, node_color=prev_color)
 
         prev_position = initial_position
         for i, position in enumerate(self.list_of_positions[1:]):
-            plt.title(f'Random Graph. Starting position: {initial_position}, step {i + 1}')
+            plt.title(f'Random walk on graph. Starting position: {initial_position}, step {i + 1}')
 
             # write with new color
             nx.draw_networkx_nodes([position], pos=layout, node_color=new_step_color)
             nx.draw_networkx_edges(self._network, edgelist=[(prev_position, position)], pos=layout,
                                    edge_color=new_step_color)
-            plt.savefig(f'{destination}/{self.__class__.__name__}_step_{i + 1}.png')
+            plt.savefig(f'{destination}/{filename}_step_{i + 1}.png')
 
             # change color to standard
             nx.draw_networkx_nodes([position], pos=layout, node_color=prev_color)
@@ -115,17 +123,17 @@ class RandomWalkOnGraph:
             None
         """
         if not filename:
-            filename = f'{self.__class__.__name__}.gif'
+            filename = f'{self.__class__.__name__}'
 
-        self.save_walk_to_pngs(destination=destination, color=color, new_step_color=new_step_color,
+        self.save_walk_to_pngs(filename=filename, destination=destination, color=color, new_step_color=new_step_color,
                                prev_color=prev_color, show=False)
 
-        files = natsorted(glob.glob(f'{destination}/{self.__class__.__name__}_step_*.png'))
+        files = natsorted(glob.glob(f'{destination}/{filename}_step_*.png'))
         images = []
 
         for file in files:
             images.append(imageio.imread(file))
-            imageio.mimsave(f'{destination}/{filename}', images, duration=step_time)
+            imageio.mimsave(f'{destination}/{filename}.gif', images, duration=step_time)
         return
 
     def get_stats(self, starting_node: int = 0, max_iter: int = 1000):
@@ -137,7 +145,6 @@ class RandomWalkOnGraph:
         """
 
         nodes = list(self._network.nodes)
-        # neighbors = [it for it in self._network.neighbors(starting_node)]
 
         unvisited_nodes = copy(nodes)
         unvisited_nodes.remove(starting_node)
@@ -157,12 +164,17 @@ class RandomWalkOnGraph:
 
 
 if __name__ == "__main__":
-    x = random_graph(10, .5)
+    x = random_graph(10, .2)
     rwog = RandomWalkOnGraph()
     rwog.network = x
 
-    # print(rwog.generate(num_of_steps=5))
-    # rwog.save_walk_to_pngs()
-    # rwog.save_walk_to_gif(destination='../data')
-    # nx
-    print(rwog.get_stats())
+    nx.draw_networkx(x, pos=nx.circular_layout(x))
+    plt.show()
+
+    mc = 100
+    stats = rwog.get_stats()
+    for _ in range(mc-1):
+        new_stats = rwog.get_stats()
+        stats = {key: val + new_stats[key] for key, val in stats.items()}
+
+    print({key: val/mc for key, val in stats.items()})

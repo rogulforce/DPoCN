@@ -44,6 +44,14 @@ class RandomWalk:
         Returns:
             list[tuple]: list of positions.
         """
+        if not isinstance(starting_position, tuple):
+            raise "starting_position should be tuple"
+
+        if (not isinstance(starting_position[0], int)) or (not isinstance(starting_position[1], int)) :
+            raise "starting position should be int"
+        if not isinstance(num_of_steps, int):
+            raise "num of steps shall be int"
+
         self.position = np.array(starting_position, dtype=float)
         self.update_list_of_positions()
 

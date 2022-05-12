@@ -38,6 +38,7 @@ def sir_model(Y: tuple[int | float , int | float, int | float], t: np.array, r: 
         tuple[float, float, float]: derivatives of S, I and R
     """
     S, I, R = Y
+    # print(I)
     # condition check
     if (not isinstance(S, (int, float))) or \
        (not isinstance(I, (int, float))) or \
@@ -125,7 +126,7 @@ def phase_portrait_visualiser(solution, r, beta, S0, I0, R0, arrow_density=30):
     dS_t, dI_t = si_model((S_t, I_t), 0, r, beta)
     dS_t, dI_t = normalize_vector_length(dS_t, dI_t)
 
-    plt.figure(figsize=(7,7))
+    plt.figure(figsize=(7, 7))
     # plot
     plt.plot(S, I)
     # arrows
@@ -159,35 +160,36 @@ def total_infected_vs_r0(t: np.array, S0: tuple, I0: tuple, R0: tuple, r: tuple,
     plt.scatter(R0_vector, total_infected_vector)
     plt.xlabel('R_0')
     plt.ylabel('total infected')
-    plt.title(f'phase portrait: beta from {beta[0]:.2f} to {beta[-1]:.2f}, r from {r[0]:.2f} to {r[-1]:.2f}, '
+    plt.title(f'total_infected(R_0) : beta from {beta[0]:.2f} to {beta[-1]:.2f}, r from {r[0]:.2f} to {r[-1]:.2f}, '
                f'\nS(0)={S0[0]:.0f}, I(0)={I0[0]:.0f}, R(0)={R0[0]:.0f}')
     plt.show()
-    print(R0_vector)
+    return
 
-if __name__ == '__main__':
-    # t = np.arange(0, 30, 0.001)
-    # N = 100
-    #
-    # S0 = N
-    # I0 = 1
-    # R0 = 0
-    # Y0 = (N, I0, 0)
-    #
-    # for beta in [0.01, 0.02, 0.03]:
-    #     for r in [0.8, 1.2]:
-    #         solution = odeint(sir_model, Y0, t, args=(r, beta))
-    #
-    #         SIR_visualiser(solution, t, r, beta, N, I0, 0)
-    #         phase_portrait_visualiser(solution, r, beta, N, I0, 0)
 
-    t = np.arange(0, 30, 0.5)
-    S0 = [100] * 9
-    I0 = [1] * 9
-    R0 = [0] * 9
-    beta = [0.01] * 9
-    r = [0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3]
-    total_infected_vs_r0(t,S0,I0,R0,r,beta)
-
-    beta = [0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13]
-    r = [0.01] * 9
-    total_infected_vs_r0(t, S0, I0, R0, r, beta)
+# if __name__ == '__main__':
+#     # t = np.arange(0, 30, 0.001)
+#     # N = 100
+#     #
+#     # S0 = N
+#     # I0 = 1
+#     # R0 = 0
+#     # Y0 = (N, I0, 0)
+#     #
+#     # for beta in [0.01, 0.02, 0.03]:
+#     #     for r in [0.8, 1.2]:
+#     #         solution = odeint(sir_model, Y0, t, args=(r, beta))
+#     #
+#     #         SIR_visualiser(solution, t, r, beta, N, I0, 0)
+#     #         phase_portrait_visualiser(solution, r, beta, N, I0, 0)
+#
+#     t = np.arange(0, 30, 0.5)
+#     S0 = [100] * 9
+#     I0 = [1] * 9
+#     R0 = [0] * 9
+#     beta = [0.01] * 9
+#     r = [0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3]
+#     total_infected_vs_r0(t,S0,I0,R0,r,beta)
+#
+#     beta = [0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13]
+#     r = [0.01] * 9
+#     total_infected_vs_r0(t, S0, I0, R0, r, beta)

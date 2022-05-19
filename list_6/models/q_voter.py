@@ -88,6 +88,7 @@ class QVoter:
             self.single_step(p, q, type_of_influence)
             # add current magnetization to the list
             self.update_magnetization_list()
+
         return self.operating_magnetization
 
     def calculate_magnetization(self):
